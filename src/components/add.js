@@ -1,4 +1,4 @@
-import React,{Component} from 'react';
+import React, { Component } from 'react';
 import style from './../style/style'
 import { View, Image, Text, ScrollView, AsyncStorage } from 'react-native';
 import { Header, Button, Input, Icon } from 'react-native-elements';
@@ -9,27 +9,27 @@ import { API_URL } from './../support/apiUrl';
 
 class Add extends Component {
     state = {
-        caption : '', 
-        image: null, 
-        loading: false, 
+        caption: '',
+        image: null,
+        loading: false,
         error: ''
     }
 
-    onBtnSelectGaleryPress= async()=>{
+    onBtnSelectGaleryPress = async () => {
         try {
-            var img =await ImagePicker.openPicker({
+            var img = await ImagePicker.openPicker({
                 width: 700,
                 height: 700,
                 cropping: true,
                 mediaType: 'photo'
             })
-            this.setState({ image: img })    
+            this.setState({ image: img })
         } catch (error) {
             console.log(error)
         }
 
     }
-    
+
     onBtnOpenCameraPress = () => {
         ImagePicker.openCamera({
             width: 700,
@@ -42,13 +42,48 @@ class Add extends Component {
         });
     }
 
-    render() { 
+
+    onBtnPostImagepress = async () => {
+        this.setState({ error: '', loading: true })
+        try {
+            const token = await AsyncStorage.getItem('usertoken')
+            const image = {
+                uri: this.state.image.path,
+                type: 'image/jpeg',
+                name: 'photo.jpg'
+            }
+            var formdata = new FormData();
+
+            var options = {
+                headers: {
+                    'Contet-Type': 'multipart/from-data',
+                    'Authorization': `Bearer ${token}`
+                }
+            }
+
+            var data = {
+                caption: this.state.caption,
+                userId: this.props.user.id
+            }
+
+            formdata.append('image', image)
+            formdata.append('data', JSON.stringify(data))
+
+            const res = await axios.post(API_URL + '/post/addpost', formdata, options)
+            this.setState({ loading: false })
+        } catch (error) {
+            console.log(error)
+            this.setState({ loading: false, error: error.response.data.message })
+        }
+    }
+
+    render() {
         return (
-            <View style={{flex:1}}>
+            <View style={{ flex: 1 }}>
                 <Header
                     leftComponent={{
-                        text:'Select Image',
-                        style: { color: 'black', fontSize: 18, fontWeight: '700' } 
+                        text: 'Select Image',
+                        style: { color: 'black', fontSize: 18, fontWeight: '700' }
                     }}
                     leftContainerStyle={{ flex: 3 }}
                     containerStyle={{
@@ -57,6 +92,7 @@ class Add extends Component {
                         marginTop: Platform.OS === 'ios' ? 0 : - 25,
                         elevation: 2
                     }}
+
                 />
                 <ScrollView>
                     <View style={{ marginVertical: 20, marginHorizontal: 15 }}>
@@ -70,7 +106,7 @@ class Add extends Component {
                             }
                             title="Select from Gallery"
                             onPress={this.onBtnSelectGaleryPress}
-                            containerStyle={{ marginBottom : 15 }}
+                            containerStyle={{ marginBottom: 15 }}
                             buttonStyle={{ backgroundColor: 'black' }}
                         />
                         <Button
@@ -92,9 +128,25 @@ class Add extends Component {
                         />
                     </View>
                     <View style={{ marginHorizontal: 15, alignItems: 'center', justifyContent: 'center' }}>
-                        <Image 
-                            source={{ uri: this.state.image ? this.state.image.path : null }} 
-                            style={{ height: 350, width: '100%' }} 
+                        <Image
+                            source={{ uri: this.state.image ? this.state.image.path : null }}
+                            style={{ height: 350, width: '100%' }}
+                        />
+                    </View>
+                    <View style={{ marginVertical: 10, marginHorizontal: 15 }}>
+                        <Text style={{ color: 'red' }} > {this.state.error}</Text>
+                        <Button
+                            icon={
+                                <Icon
+                                    name='cloud-upload'
+                                    size={30}
+                                    color="white"
+                                />
+                            }
+                            title="Post Image"
+                            buttonStyle={{ backgroundColor: 'black' }}
+                            onPress={this.onBtnPostImagepress}
+                            loading={this.state.loading}
                         />
                     </View>
                 </ScrollView>
@@ -102,5 +154,10 @@ class Add extends Component {
         )
     }
 }
- 
-export default Add;
+
+const mapStateToProps = ({ auth }) => {
+    return {
+        user: auth.user
+    }
+}
+export default connect(mapStateToProps)(Add);
