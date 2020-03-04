@@ -1,9 +1,10 @@
 import axios from 'axios';
 import { AsyncStorage } from 'react-native';
 import { API_URL } from './../../support/apiUrl';
-import { 
+import {
     HOME_REFRESHING,
     FILL_POST_LIST,
+    SELECT_POST_PROFILE
 } from './types';
 
 export const getListPost = () => {
@@ -23,8 +24,14 @@ export const getListPost = () => {
                 type: FILL_POST_LIST,
                 payload: res.data
             })
-        } catch(err) {
+        } catch (err) {
             console.log(err.response)
         }
+    }
+}
+export const selectProfilePost = (post) => {
+    return {
+        type: SELECT_POST_PROFILE,
+        payload: post
     }
 }
