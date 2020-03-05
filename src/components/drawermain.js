@@ -1,46 +1,54 @@
 import React from 'react';
-import {createDrawerNavigator} from '@react-navigation/drawer'
+import { createDrawerNavigator } from '@react-navigation/drawer'
 import { Icon } from 'react-native-elements';
 import Hometab from './hometab'
 import Settings from './settings'
 const Drawer = createDrawerNavigator();
 
-const Drawermain=()=>{
-    return(
-        <Drawer.Navigator 
+const Drawermain = ({ navigation }) => {
+    return (
+        <Drawer.Navigator
             initialRouteName='Hometab'
             drawerType='slide'
             drawerPosition='right'
             drawerContentOptions={
                 {
-                    activeTintColor:'tomato',
-                    inactiveTintColor:'gray',
-                    activeBackgroundColor:'transparent',
+                    activeTintColor: 'tomato',
+                    inactiveTintColor: 'gray',
+                    activeBackgroundColor: 'transparent',
                 }
             }
-            // overlayColor={1}
-            // keyboardDismissMode='none'
+        // overlayColor={1}
+        // keyboardDismissMode='none'
         >
-            <Drawer.Screen 
-                name='Settings' 
-                component={Settings}
+            <Drawer.Screen
+                name='Settings'
+                // component={Settings}
                 options={{
-                    drawerLabel:'Settings',
-                    drawerIcon:({color})=>{
-                        return(
-                            <Icon name='settings' color={color}/>
-                            )
-                        },
+                    drawerLabel: 'Settings',
+                    drawerIcon: ({ color }) => {
+                        return (
+                            <Icon name='settings' color={color} />
+                        )
+                    },
+                }
+                }
+            >
+                {
+                    () => {
+                        return (
+                            <Settings screenprops={navigation} />
+                        )
                     }
                 }
-                
-                />
-            <Drawer.Screen 
-                name='Hometab' 
-                component={Hometab} 
+
+            </Drawer.Screen>
+            <Drawer.Screen
+                name='Hometab'
+                component={Hometab}
                 options={{
-                    drawerLabel:()=>null,
-                    gestureEnabled:false
+                    drawerLabel: () => null,
+                    gestureEnabled: false
 
                 }}
             />
